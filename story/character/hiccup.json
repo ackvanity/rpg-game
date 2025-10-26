@@ -1,0 +1,55 @@
+{
+  "name": "Hiccup Horrendous Haddock III",
+  "id": "hiccup",
+  "description": "Once a clumsy and underestimated Viking known for his small stature and poor physical abilities, Hiccup is a clever and resourceful young Viking who aspires to change the way his people view dragons. He's inventive and compassionate, often finding non-violent solutions to problems involving dragons.",
+  "interactable": true,
+  "opening_states": [
+    "introduction_1",
+    "introduction_2"
+  ],
+  "option_menus": [
+    {
+      "state": "introduction_2",
+      "text": "Greet Hiccup warmly and ask about his adventures."
+    }
+  ],
+  "states": {
+    "introduction_1": {
+      "steps": [
+        {
+          "type": "dialogue",
+          "speaker": "Hiccup",
+          "text": "Hi there! I'm Hiccup, and I'm on a mission to prove that dragons and Vikings can be friends."
+        }
+      ],
+      "transitions": [
+        { "condition": "true", "target": "__menu__" }
+      ]
+    },
+    "introduction_2": {
+      "steps": [
+        {
+          "type": "dialogue",
+          "speaker": "Hiccup",
+          "text": "Hi there! I'm Hiccup. Want to hear about my adventures with dragons?"
+        },
+        {
+          "type": "story",
+          "text": "Toothless excitedly flaps his wings beside you, eager to share his story. Along the way, he pushes Hiccup aside to take center stage."
+        },
+        {
+          "type": "dialogue",
+          "speaker": "Hiccup",
+          "text": "Woaah! Toothless, hey! Let me tell them about our adventures too!"
+        }
+      ],
+      "transitions": [
+        { "condition": "true", "target": "__menu__" }
+      ]
+    }
+  },
+  "variables": {
+    "trust": 5,
+    "health": 100
+  }
+}

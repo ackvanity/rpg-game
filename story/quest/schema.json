@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Quest",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_]+$",
+      "description": "The ID to refer this Quest"
+    },
+    "title": {
+      "type": "string",
+      "minimum": 1,
+      "description": "A title for this Quest"
+    },
+    "description": {
+      "type": "string",
+      "description": "A description highlighting the Quest's content"
+    },
+    "variables": {
+      "type": "object",
+      "description": "An object defining variables used within the quest",
+      "patternProperties": {
+        "^[A-Za-z0-9_]+$": {
+          "type": ["string", "boolean", "number", "null"],
+          "description": "The initial value of the variable"
+        }
+      }
+    },
+    "characters": {
+      "type": "object",
+      "description": "An object defining characters involved in the quest",
+      "patternProperties": {
+        "^[A-Za-z0-9_]+$": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "acquireLock": {
+              "type": "number",
+              "description": "Whether to acquire a mutually exclusive lock for the character during the quest. 0 means no lock, 1 means acquire mutually exclusive lock, but allow other quests that do not acquire locks for the same characters. A value of 2 prevents any other quest from referring the character, regardless of whether they attempt to acquie a mutually exclusive lock for it."
+            }
+          },
+          "required": ["name"]
+        }
+      }
+    },
+    "states": {
+      "type": "object",
+      "description": "An object of named states, each with a set number of steps. Jumping between states is non-linear, while jumping between steps within one state is.",
+      "patternProperties": {
+        "^[A-Za-z0-9_]+$": {
+          "type": "object",
+          "properties": {
+            "steps": {
+              "type": "array",
+              "items": {
+                "description": "A single step to perform. Can be a dialogue, a story paragraph, a task, or other additional types",
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string" }
+                },
+                "required": ["type"],
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": { "const": "dialogue" },
+                      "speaker": { "type": "string" },
+                      "text": { "type": "string" },
+                      "choices": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "text": { "type": "string" },
+                            "effect": { "type": "string" }
+                          },
+                          "required": ["text", "effect"]
+                        }
+                      }
+                    },
+                    "required": ["speaker", "text"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "story" },
+                      "text": { "type": "string" }
+                    },
+                    "required": ["text"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "task" },
+                      "taskId": { "type": "string" },
+                      "description": { "type": "string" },
+                      "character": { "type": "string" },
+                      "choiceText": { "type": "string" }
+                    },
+                    "required": ["taskId", "description", "character", "choiceText"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "stateUpdate" },
+                      "update": { "type": "string" }
+                    },
+                    "required": ["update"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "teleportCharacter" },
+                      "location": { "type": "string" },
+                      "character": { "type": "string" }
+                    },
+                    "required": ["location", "character"],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "transitions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "condition": { "type": "string" },
+                  "target": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["id", "title", "description", "states"]
+}

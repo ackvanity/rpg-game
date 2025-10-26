@@ -1,0 +1,50 @@
+{
+  "name": "Astrid Hofferson",
+  "id": "astrid",
+  "description": "A confident and determined Viking warrior, Astrid is known for her skill in combat and sharp instincts. She values discipline and loyalty, but has a compassionate side that shows when she trusts someone. She's quick to assess situations and isn't afraid to speak her mind, often challenging Hiccup to think more strategically.",
+  "interactable": true,
+  "opening_states": [
+    "introduction_1",
+    "introduction_2"
+  ],
+  "option_menus": [
+    {
+      "state": "introduction_2",
+      "text": "Compliment Astrid on her combat skills and ask for tips."
+    }
+  ],
+  "states": {
+    "introduction_1": {
+      "steps": [
+        {
+          "type": "dialogue",
+          "speaker": "Astrid",
+          "text": "Hey there! I'm Astrid. I don't have time for nonsense, so let's keep this quick."
+        }
+      ],
+      "transitions": [
+        { "condition": "true", "target": "__menu__" }
+      ]
+    },
+    "introduction_2": {
+      "steps": [
+        {
+          "type": "dialogue",
+          "speaker": "Astrid",
+          "text": "If you want to survive a dragon flight, you need to stay focused. I can show you the ropes if you're ready."
+        },
+        {
+          "type": "story",
+          "text": "Astrid adjusts her axe strap and eyes the sky, clearly measuring the wind and your courage before offering guidance."
+        }
+      ],
+      "transitions": [
+        { "condition": "true", "target": "__menu__" }
+      ]
+    }
+  },
+  "variables": {
+    "suspicion": 5,
+    "health": 100
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "id": "rescue_hiccup_toothless",
+  "title": "Rescue Hiccup and Toothless",
+  "description": "Hiccup and Toothless crashed into the woods. You must save them and bring them home safely.",
+  "variables": {
+    "target": ""
+  },
+  "characters": {
+    "hiccup": { "acquireLock": 2 },
+    "toothless": { "acquireLock": 2 },
+    "astrid": { "acquireLock": 1 }
+  },
+  "hiccup_death_msg": "Hiccup was lost in the forest after the crash.",
+  "toothless_death_msg": "Toothless perished in the woods, unable to escape the dangers.",
+  "astrid_death_msg": null,
+  "states": {
+    "travel_to_crash": {
+      "steps": [
+        {
+          "type": "story",
+          "text": "The forest looms dark and tangled. You must reach Hiccup and Toothless before danger strikes."
+        },
+        {
+          "type": "dialogue",
+          "speaker": "astrid",
+          "text": "We need to move quickly but carefully.",
+          "choices": [
+            { "text": "Move cautiously", "effect": "target='rescue_hiccup'" },
+            { "text": "Rush recklessly", "effect": "target='rescue_hiccup_reckless'" }
+          ]
+        }
+      ],
+      "transitions": [
+        { "condition": "target=='rescue_hiccup'", "target": "rescue_hiccup" },
+        { "condition": "target=='rescue_hiccup_reckless'", "target": "rescue_hiccup_reckless" }
+      ]
+    },
+    "rescue_hiccup": {
+      "steps": [
+        {
+          "type": "story",
+          "text": "You arrive at the crash site. Toothless is panicked, Hiccup trapped under a heavy branch."
+        },
+        {
+          "type": "stateUpdate",
+          "update": "hiccup_health -= 10; toothless_health -= 5; dragon_bonding_level += 5"
+        }
+      ],
+      "transitions": [
+        { "condition": "hiccup_health<=0 || toothless_health<=0", "target": "quest_failed" },
+        { "condition": "hiccup_health>0 && toothless_health>0", "target": "lift_branch" }
+      ]
+    },
+    "rescue_hiccup_reckless": {
+      "steps": [
+        {
+          "type": "story",
+          "text": "You charge in blindly. Toothless panics, Hiccup's branch snaps violently."
+        },
+        {
+          "type": "stateUpdate",
+          "update": "hiccup_health -= 95; toothless_health -= 95; player_health -= 30; dragon_bonding_level -= 20"
+        }
+      ],
+      "transitions": [
+        { "condition": "hiccup_health<=0 || toothless_health<=0", "target": "quest_failed" },
+        { "condition": "hiccup_health>0 && toothless_health>0", "target": "lift_branch" }
+      ]
+    },
+    "lift_branch": {
+      "steps": [
+        {
+          "type": "story",
+          "text": "Toothless hesitates as you prepare to free him. The wind is picking up, and the branch creaks ominously."
+        },
+        {
+          "type": "dialogue",
+          "speaker": "astrid",
+          "text": "Careful! One slip and they could fall!"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "hiccup",
+          "text": "Aaah! Oh my back hurts.... Please help me!",
+          "choices": [
+            {
+              "text": "Lift slowly, ensure stability.",
+              "effect": "dragon_bonding_level += 2; toothless_dominance -= 1"
+            },
+            {
+              "text": "Lift quickly so it hurts less.",
+              "effect": "toothless_health -= 10; hiccup_trust += 1"
+            }
+          ]
+        }
+      ],
+      "transitions": [
+        { "condition": "hiccup_health<=0 || toothless_health<=0", "target": "quest_failed" },
+        { "condition": "hiccup_health>0 && toothless_health>0", "target": "return_home" }
+      ]
+    },
+    "return_home": {
+      "steps": [
+        {
+          "type": "story",
+          "text": "With Hiccup freed and Toothless calm, you start the journey back to the village. The forest creaks and rustles around you. Cliffs and holes await your journey back."
+        },
+        {
+          "type": "dialogue",
+          "speaker": "hiccup",
+          "text": "Thank you so much for saving us! Let's head back, it's getting cold, fast!",
+          "choices": [
+            { "text": "Move cautiously", "effect": "target='quest_complete'" },
+            { "text": "Hurry to finish", "effect": "target='return_home_hazard'" }
+          ]
+        }
+      ],
+      "transitions": [
+        { "condition": "target=='quest_complete'", "target": "quest_complete" },
+        { "condition": "target=='return_home_hazard'", "target": "return_home_hazard" }
+      ]
+    },
+    "return_home_hazard": {
+      "steps": [
+        {
+          "type": "story",
+          "text": "In your rush, Toothless stumbles and Hiccup nearly falls. You barely recover."
+        },
+        {
+          "type": "stateUpdate",
+          "update": "hiccup_health -= 20; toothless_health -= 15; player_health -= 10; dragon_bonding_level -= 5"
+        }
+      ],
+      "transitions": [
+        { "condition": "hiccup_health<=0 || toothless_health<=0", "target": "quest_failed" },
+        { "condition": "hiccup_health>0 && toothless_health>0", "target": "quest_complete" }
+      ]
+    },
+    "quest_failed": {
+      "steps": [
+        {
+          "type": "story",
+          "text": "Despite your best intentions. Hiccup and Toothless did not survive the forest's dangers. Astrid looks at you with sorrow, anger, and disappointment. Berk will never forget the loss of its proud young chief."
+        },
+        {
+          "type": "stateUpdate",
+          "update": "hiccup_alive = false; toothless_alive = false; quest_status = 'failed'; astrid_trust -= 5"
+        }
+      ],
+      "transitions": []
+    },
+    "quest_complete": {
+      "steps": [
+        {
+          "type": "story",
+          "text": "You escort Hiccup and Toothless safely back to the village. Toothless nuzzles you gratefully... with a little too much force! Astrid stands in the corner, giving a gentle smile for your success."
+        },
+        {
+          "type": "stateUpdate",
+          "update": "quest_status = 'completed'; astrid_trust += 2; toothless_bonding_level += 3; hiccup_trust += 3"
+        }
+      ],
+      "transitions": []
+    }
+  }
+}
