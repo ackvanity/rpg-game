@@ -26,14 +26,14 @@
           "speaker": "astrid",
           "text": "We need to move quickly but carefully.",
           "choices": [
-            { "text": "Move cautiously", "effect": "target='rescue_hiccup'" },
-            { "text": "Rush recklessly", "effect": "target='rescue_hiccup_reckless'" }
+            { "text": "Move cautiously", "effect": "quest_target='rescue_hiccup'" },
+            { "text": "Rush recklessly", "effect": "quest_target='rescue_hiccup_reckless'" }
           ]
         }
       ],
       "transitions": [
-        { "condition": "target=='rescue_hiccup'", "target": "rescue_hiccup" },
-        { "condition": "target=='rescue_hiccup_reckless'", "target": "rescue_hiccup_reckless" }
+        { "condition": "quest_target=='rescue_hiccup'", "target": "rescue_hiccup" },
+        { "condition": "quest_target=='rescue_hiccup_reckless'", "target": "rescue_hiccup_reckless" }
       ]
     },
     "rescue_hiccup": {
@@ -86,7 +86,7 @@
           "choices": [
             {
               "text": "Lift slowly, ensure stability.",
-              "effect": "dragon_bonding_level += 2; toothless_dominance -= 1"
+              "effect": "dragon_bonding_level += 2; toothless_dominance -= 1; hiccup_health -= 3"
             },
             {
               "text": "Lift quickly so it hurts less.",
@@ -111,14 +111,14 @@
           "speaker": "hiccup",
           "text": "Thank you so much for saving us! Let's head back, it's getting cold, fast!",
           "choices": [
-            { "text": "Move cautiously", "effect": "target='quest_complete'" },
-            { "text": "Hurry to finish", "effect": "target='return_home_hazard'" }
+            { "text": "Move cautiously", "effect": "quest_target='quest_complete'" },
+            { "text": "Hurry to finish", "effect": "quest_target='return_home_hazard'" }
           ]
         }
       ],
       "transitions": [
-        { "condition": "target=='quest_complete'", "target": "quest_complete" },
-        { "condition": "target=='return_home_hazard'", "target": "return_home_hazard" }
+        { "condition": "quest_target=='quest_complete'", "target": "quest_complete" },
+        { "condition": "quest_target=='return_home_hazard'", "target": "return_home_hazard" }
       ]
     },
     "return_home_hazard": {
