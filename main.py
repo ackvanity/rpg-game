@@ -76,15 +76,18 @@ entity_states[EntityID(("quest", "rescue_hiccup_toothless"))].step = 1
 
 print(entity_states)
 
+
 def run_effect(effect: str, entity: EntityID):
     aeval = asteval.Interpreter()
 
     # Self entity state
     for var, value in entity_states[entity].variables.items():
         aeval.symtable[f"{entity[0]}_{var}"] = value
-    
+
     # Referenced character states
-    for character_name in get_entity_data(entity.get_file()).get("characters", {}).keys():
+    for character_name in (
+        get_entity_data(entity.get_file()).get("characters", {}).keys()
+    ):
         character_entity = EntityID(("character", character_name))
         for var, value in entity_states[character_entity].variables.items():
             aeval.symtable[f"{character_name}_{var}"] = value
@@ -93,13 +96,18 @@ def run_effect(effect: str, entity: EntityID):
 
     # Self entity state
     for var, value in entity_states[entity].variables.items():
-        entity_states[entity].variables[var] = aeval.symtable[f"{entity[0]}_{var}"] = value
-    
+        entity_states[entity].variables[var] = aeval.symtable[f"{entity[0]}_{var}"] = (
+            value
+        )
+
     # Referenced character states
-    for character_name in get_entity_data(entity.get_file()).get("characters", {}).keys():
+    for character_name in (
+        get_entity_data(entity.get_file()).get("characters", {}).keys()
+    ):
         character_entity = EntityID(("character", character_name))
         for var, value in entity_states[character_entity].variables.items():
             aeval.symtable[f"{character_name}_{var}"] = value
+
 
 def render_state():
     global entity_states, entity_stack
