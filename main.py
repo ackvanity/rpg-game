@@ -96,9 +96,7 @@ def run_effect(effect: str, entity: EntityID):
 
     # Self entity state
     for var, value in entity_states[entity].variables.items():
-        entity_states[entity].variables[var] = aeval.symtable[f"{entity[0]}_{var}"] = (
-            value
-        )
+        entity_states[entity].variables[var] = aeval.symtable[f"{entity[0]}_{var}"]
 
     # Referenced character states
     for character_name in (
@@ -106,7 +104,7 @@ def run_effect(effect: str, entity: EntityID):
     ):
         character_entity = EntityID(("character", character_name))
         for var, value in entity_states[character_entity].variables.items():
-            aeval.symtable[f"{character_name}_{var}"] = value
+            entity_states[character_entity].variables[var] = aeval.symtable[f"{character_name}_{var}"]
 
 
 def render_state():
