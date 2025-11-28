@@ -1,10 +1,8 @@
 {
-  "name": "Astrid",
-  "fullname": "Astrid Hofferson",
+  "name": "Astrid Hofferson",
   "id": "astrid",
   "description": "A confident and determined Viking warrior, Astrid is known for her skill in combat and sharp instincts. She values discipline and loyalty, but has a compassionate side that shows when she trusts someone. She's quick to assess situations and isn't afraid to speak her mind, often challenging Hiccup to think more strategically.",
   "interactable": true,
-  "location": "berk_square",
   "opening_states": [
     "introduction_1",
     "introduction_2"
@@ -46,8 +44,7 @@
     }
   },
   "variables": {
-    "trust": 3,
-    "health": 100,
-    "location": "berk"
+    "suspicion": 5,
+    "health": 100
   }
 }

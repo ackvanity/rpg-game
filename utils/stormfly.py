@@ -1,0 +1,1 @@
+# TODO: Schema validator for story entities

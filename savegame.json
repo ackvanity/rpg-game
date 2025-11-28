@@ -1,0 +1,11 @@
+{
+    "name": "Boldkhava",
+    "fullname": "Boldkhava the Adventurous",
+    "quest_data": {
+        "rescue_hiccup_toothless": {
+            "staus": "idle",
+            "state": "travel_to_crash",
+            "step": 0
+        }
+    }
+}

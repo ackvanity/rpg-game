@@ -7,33 +7,90 @@
     "target": ""
   },
   "characters": {
-    "hiccup": { "acquireLock": 2 },
-    "toothless": { "acquireLock": 2 },
-    "astrid": { "acquireLock": 1 }
+    "hiccup": {
+      "acquireLock": 2
+    },
+    "toothless": {
+      "acquireLock": 2
+    },
+    "astrid": {
+      "acquireLock": 1
+    }
   },
   "hiccup_death_msg": "Hiccup was lost in the forest after the crash.",
   "toothless_death_msg": "Toothless perished in the woods, unable to escape the dangers.",
   "astrid_death_msg": null,
+  "start_state": "travel_to_crash",
+  "start_character": "hiccup",
+  "start_line": "Are you making a new tailfin for Toothless? Can I see it in action?",
+  "start_condition": "True",
   "states": {
     "travel_to_crash": {
       "steps": [
         {
           "type": "story",
-          "text": "The forest looms dark and tangled. You must reach Hiccup and Toothless before danger strikes."
+          "text": "Hiccup swiftly hops onto Toothless. Their eyes widen, as if they are one. Hiccup asks you for the last time"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "hiccup",
+          "text": "You sure you don't want to go?"
+        },
+        {
+          "type": "story",
+          "text": "You know you actually do, but he's probably going to need help, and you're the only one who knows what he's up to now, so you stay put just in case"
+        },
+        {
+          "type": "dialogue",
+          "speaker": "hiccup",
+          "text": "Well, I'll see you later!"
+        },
+        {
+          "type": "story",
+          "text": "Not long after, you hear a thud. A roar ensues. Not just any roar, but Toothless's roar. You sense him agonized."
+        },
+        {
+          "type": "dialogue",
+          "speaker": "astrid",
+          "text": "Hey {player_name}! Did Hiccup just went out, again? I heard his roar from the woods. Please, I need your help to save him!"
+        },
+        {
+          "type": "story",
+          "text": "The forest looms dark and tangled. You and Astrid must reach Hiccup and Toothless before danger strikes."
         },
         {
           "type": "dialogue",
           "speaker": "astrid",
           "text": "We need to move quickly but carefully.",
           "choices": [
-            { "text": "Move cautiously", "effect": "quest_target='rescue_hiccup'" },
-            { "text": "Rush recklessly", "effect": "quest_target='rescue_hiccup_reckless'" }
+            {
+              "text": "Move cautiously",
+              "retrospective": {
+                "line": "Let's take it easy.",
+                "type": "dialogue"
+              },
+              "effect": "quest_target='rescue_hiccup'"
+            },
+            {
+              "text": "Rush recklessly",
+              "retrospective": {
+                "line": "Come on! We don't know how long they'll last!",
+                "type": "dialogue"
+              },
+              "effect": "quest_target='rescue_hiccup_reckless'"
+            }
           ]
         }
       ],
       "transitions": [
-        { "condition": "quest_target=='rescue_hiccup'", "target": "rescue_hiccup" },
-        { "condition": "quest_target=='rescue_hiccup_reckless'", "target": "rescue_hiccup_reckless" }
+        {
+          "condition": "quest_target=='rescue_hiccup'",
+          "target": "rescue_hiccup"
+        },
+        {
+          "condition": "quest_target=='rescue_hiccup_reckless'",
+          "target": "rescue_hiccup_reckless"
+        }
       ]
     },
     "rescue_hiccup": {
@@ -44,12 +101,18 @@
         },
         {
           "type": "stateUpdate",
-          "update": "hiccup_health -= 10; toothless_health -= 5; dragon_bonding_level += 5"
+          "update": "hiccup_health -= 10\ntoothless_health -= 5\ndragon_bonding_level += 5"
         }
       ],
       "transitions": [
-        { "condition": "hiccup_health<=0 || toothless_health<=0", "target": "quest_failed" },
-        { "condition": "hiccup_health>0 && toothless_health>0", "target": "lift_branch" }
+        {
+          "condition": "hiccup_health<=0 or toothless_health<=0",
+          "target": "quest_failed"
+        },
+        {
+          "condition": "hiccup_health>0 and toothless_health>0",
+          "target": "lift_branch"
+        }
       ]
     },
     "rescue_hiccup_reckless": {
@@ -60,12 +123,18 @@
         },
         {
           "type": "stateUpdate",
-          "update": "hiccup_health -= 95; toothless_health -= 95; player_health -= 30; dragon_bonding_level -= 20"
+          "update": "hiccup_health -= 95\ntoothless_health -= 95\nplayer_health -= 30\ndragon_bonding_level -= 20"
         }
       ],
       "transitions": [
-        { "condition": "hiccup_health<=0 || toothless_health<=0", "target": "quest_failed" },
-        { "condition": "hiccup_health>0 && toothless_health>0", "target": "lift_branch" }
+        {
+          "condition": "hiccup_health<=0 or toothless_health<=0",
+          "target": "quest_failed"
+        },
+        {
+          "condition": "hiccup_health>0 and toothless_health>0",
+          "target": "lift_branch"
+        }
       ]
     },
     "lift_branch": {
@@ -86,18 +155,32 @@
           "choices": [
             {
               "text": "Lift slowly, ensure stability.",
-              "effect": "dragon_bonding_level += 2; toothless_dominance -= 1; hiccup_health -= 3"
+              "retrospective": {
+                "line": "I slowly lifted the branch. Although Hiccup shrieked as the weight shifted the branch mostly remains intact",
+                "type": "story"
+              },
+              "effect": "dragon_bonding_level += 2\ntoothless_dominance -= 1\nhiccup_health -= 3"
             },
             {
               "text": "Lift quickly so it hurts less.",
-              "effect": "toothless_health -= 10; hiccup_trust += 1"
+              "retrospective": {
+                "line": "I threw the branch out of the way with all my power. Hiccup takes a deep breath of relief, but Toothless roars in pain as the branch breaks apart and crashes upon him.",
+                "type": "story"
+              },
+              "effect": "toothless_health -= 10\nhiccup_trust += 1"
             }
           ]
         }
       ],
       "transitions": [
-        { "condition": "hiccup_health<=0 || toothless_health<=0", "target": "quest_failed" },
-        { "condition": "hiccup_health>0 && toothless_health>0", "target": "return_home" }
+        {
+          "condition": "hiccup_health<=0 or toothless_health<=0",
+          "target": "quest_failed"
+        },
+        {
+          "condition": "hiccup_health>0 and toothless_health>0",
+          "target": "return_home"
+        }
       ]
     },
     "return_home": {
@@ -111,14 +194,26 @@
           "speaker": "hiccup",
           "text": "Thank you so much for saving us! Let's head back, it's getting cold, fast!",
           "choices": [
-            { "text": "Move cautiously", "effect": "quest_target='quest_complete'" },
-            { "text": "Hurry to finish", "effect": "quest_target='return_home_hazard'" }
+            {
+              "text": "Move cautiously",
+              "effect": "quest_target='quest_complete'"
+            },
+            {
+              "text": "Hurry to finish",
+              "effect": "quest_target='return_home_hazard'"
+            }
           ]
         }
       ],
       "transitions": [
-        { "condition": "quest_target=='quest_complete'", "target": "quest_complete" },
-        { "condition": "quest_target=='return_home_hazard'", "target": "return_home_hazard" }
+        {
+          "condition": "quest_target=='quest_complete'",
+          "target": "quest_complete"
+        },
+        {
+          "condition": "quest_target=='return_home_hazard'",
+          "target": "return_home_hazard"
+        }
       ]
     },
     "return_home_hazard": {
@@ -129,12 +224,18 @@
         },
         {
           "type": "stateUpdate",
-          "update": "hiccup_health -= 20; toothless_health -= 15; player_health -= 10; dragon_bonding_level -= 5"
+          "update": "hiccup_health -= 20\ntoothless_health -= 15\nplayer_health -= 10\ndragon_bonding_level -= 5"
         }
       ],
       "transitions": [
-        { "condition": "hiccup_health<=0 || toothless_health<=0", "target": "quest_failed" },
-        { "condition": "hiccup_health>0 && toothless_health>0", "target": "quest_complete" }
+        {
+          "condition": "hiccup_health<=0 or toothless_health<=0",
+          "target": "quest_failed"
+        },
+        {
+          "condition": "hiccup_health>0 and toothless_health>0",
+          "target": "quest_complete"
+        }
       ]
     },
     "quest_failed": {
@@ -145,7 +246,7 @@
         },
         {
           "type": "stateUpdate",
-          "update": "hiccup_alive = false; toothless_alive = false; quest_status = 'failed'; astrid_trust -= 5"
+          "update": "quest_status = 'failed'\nhiccup_alive = False\ntoothless_alive = False\nastrid_trust -= 5"
         }
       ],
       "transitions": []
@@ -158,7 +259,7 @@
         },
         {
           "type": "stateUpdate",
-          "update": "quest_status = 'completed'; astrid_trust += 2; toothless_bonding_level += 3; hiccup_trust += 3"
+          "update": "quest_status = 'completed'\nastrid_trust += 2\ntoothless_bonding_level += 3\nhiccup_trust += 3"
         }
       ],
       "transitions": []

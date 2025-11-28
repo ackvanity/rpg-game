@@ -1,0 +1,8 @@
+{
+    "dialogues": {
+        "characters": {
+            "farewell": ["Well, sorry I'm getting into the middle of something {character_name}. See you later!"],
+            "interact": ["Oh, hi {character_name}!"]
+        }
+    }
+}
