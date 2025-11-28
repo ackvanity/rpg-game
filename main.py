@@ -128,43 +128,89 @@ def preload_story_entities(base_path="story"):
     logger.info(f"Preloaded {count} story entities from '{base_path}'.")
 
 
+# Refactored run_effect to remove duplication: small helpers for loading/writing the symtable
 def run_effect(effect: str, entity: EntityID):
     aeval = asteval.Interpreter()
+    entity_file = get_entity_data(entity.get_file())
 
-    # Self entity state
-    for var, value in entity_states[entity].variables.items():
-        aeval.symtable[f"{entity[0]}_{var}"] = value
+    # helper: load an entity's variables into the interpreter symtable with prefix "<type>_<var>"
+    def _load_entity_to_sym(eid: EntityID):
+        for var, value in entity_states[eid].variables.items():
+            aeval.symtable[f"{eid[0]}_{var}"] = value
 
-    # Referenced character states
-    for character_name in (
-        get_entity_data(entity.get_file()).get("characters", {}).keys()
-    ):
-        character_entity = EntityID(("character", character_name))
-        for var, value in entity_states[character_entity].variables.items():
-            aeval.symtable[f"{character_name}_{var}"] = value
+    # helper: write back variables from symtable to the entity state (if present)
+    def _write_back_from_sym(eid: EntityID):
+        for var in list(entity_states[eid].variables.keys()):
+            sym_name = f"{eid[0]}_{var}"
+            if sym_name in aeval.symtable:
+                entity_states[eid].variables[var] = aeval.symtable[sym_name]
 
+    # load self
+    _load_entity_to_sym(entity)
+
+    # load any characters referenced by this entity's file (if any)
+    for character_name in entity_file.get("characters", {}).keys():
+        char_entity = EntityID(("character", character_name))
+        _load_entity_to_sym(char_entity)
+
+    # evaluate
     result = aeval(effect)
 
-    # Self entity state
-    for var, value in entity_states[entity].variables.items():
-        entity_states[entity].variables[var] = aeval.symtable[f"{entity[0]}_{var}"]
-
-    # Referenced character states
-    for character_name in (
-        get_entity_data(entity.get_file()).get("characters", {}).keys()
-    ):
-        character_entity = EntityID(("character", character_name))
-        for var, value in entity_states[character_entity].variables.items():
-            entity_states[character_entity].variables[var] = aeval.symtable[
-                f"{character_name}_{var}"
-            ]
+    # write back for self and referenced characters
+    _write_back_from_sym(entity)
+    for character_name in entity_file.get("characters", {}).keys():
+        char_entity = EntityID(("character", character_name))
+        _write_back_from_sym(char_entity)
 
     return result
 
 
+# Helper to build the options for a character's menu (keeps render_state concise)
+def build_character_menu_options(character_entity: EntityID):
+    char_data = get_entity_data(character_entity.get_file())
+    character_code = character_entity[1]
+
+    def transition_state(option):
+        # don't mutate original option objects in char files
+        opt = option.copy()
+        opt["effect"] = (
+            f"entity_states[entity_stack[-1]].state = '{opt['state']}'; entity_stack[-1].step = 0"
+        )
+        return opt
+
+    options = list(map(transition_state, char_data.get("option_menus", [])))
+
+    # Append quests that can start
+    for i, quest in enumerate(quest_triggers.get(character_code, [])):
+        quest_data = get_entity_data(quest.get_file())
+        # check start_condition and quest status
+        if run_effect(quest_data["start_condition"], quest) and entity_states[quest].variables.get("status") == "idle":
+            options.append(
+                {
+                    "text": quest_data["start_line"],
+                    "effect": (
+                        f"entity_states[quest_triggers['{character_code}'][{i}]].variables['status']='inprogress'; "
+                        f"entity_states[quest_triggers['{character_code}'][{i}]].state='{quest_data['start_state']}'; "
+                        f"entity_states[quest_triggers['{character_code}'][{i}]].step = 0; "
+                        f"entity_stack.append(quest_triggers['{character_code}'][{i}])"
+                    ),
+                }
+            )
+
+    # Add farewell option
+    player_farewell = random.choice(get_player_data()["dialogues"]["characters"]["farewell"])
+    options.append(
+        {
+            "text": player_farewell.format(character_name=char_data["name"]),
+            "effect": "entity_stack.pop()",
+        }
+    )
+
+    return options
+
 async def render_state():
     global entity_states, entity_stack, quest_triggers, renderer
-    
+
     await asyncio.sleep(0)  # Yield to event loop
 
     if len(entity_stack) == 0:
@@ -173,63 +219,29 @@ async def render_state():
     current_entity = entity_stack[-1]
     state = entity_states[current_entity]
 
+    # quick local cache for repeated reads
+    entity_file = get_entity_data(current_entity.get_file())
+
+    # character menu flow (refactored to use helper)
     if current_entity[0] == "character" and state.state == "__menu__":
-        character_line = random.choice(
-            get_entity_data(current_entity.get_file())["menu_lines"]
-        )
-        character_name = get_entity_data(current_entity.get_file())["name"]
-        character_code = current_entity[1]
+        character_line = random.choice(entity_file["menu_lines"])
+        character_name = entity_file["name"]
 
-        def transition_state(option):
-            option["effect"] = (
-                f"entity_states[entity_stack[-1]].state = '{option['state']}'; entity_stack[-1].step = 0"
-            )
-            return option
-
-        options = list(
-            map(
-                transition_state,
-                get_entity_data(current_entity.get_file())["option_menus"],
-            )
-        )
-
-        for i, quest in enumerate(quest_triggers[character_code]):
-            if (
-                run_effect(get_entity_data(quest.get_file())["start_condition"], quest)
-                and entity_states[quest].variables["status"] == "idle"
-            ):
-                options.append(
-                    {
-                        "text": get_entity_data(quest.get_file())["start_line"],
-                        "effect": f"entity_states[quest_triggers[character_code][{i}]].variables['status']='inprogress'; entity_states[quest_triggers[character_code][{i}]].state='{get_entity_data(quest.get_file())['start_state']}'; entity_states[quest_triggers[character_code][{i}]].step = 0; entity_stack.append(quest_triggers[character_code][{i}])",
-                    }
-                )
-
-        options.append(
-            {
-                "text": random.choice(
-                    get_player_data()["dialogues"]["characters"]["farewell"]
-                ).format(character_name=character_name),
-                "effect": f"entity_stack.pop()",
-            }
-        )
+        options = build_character_menu_options(current_entity)
 
         await renderer.send_dialogue(character_name, character_line)
-
         choice = await renderer.send_option(list(map(lambda x: x["text"], options)))
         selected_choice = options[choice]
+        # original code used exec to apply effect strings (keeps dynamic behavior)
         exec(selected_choice.get("effect", "None"), globals(), locals())
         await render_state()
         return
+
     if current_entity[0] == "location":
-        location_ambient = random.choice(
-            get_entity_data(current_entity.get_file())["ambient"]
-        )
+        location_ambient = random.choice(entity_file["ambient"])
 
-    current_state = get_entity_data(current_entity.get_file())["states"][state.state]
-
+    current_state = entity_file["states"][state.state]
     step = current_state["steps"][state.step]
-
     steps: int = len(current_state["steps"])
 
     match step["type"]:
@@ -237,24 +249,18 @@ async def render_state():
             await renderer.send_story(step["text"])
         case "dialogue":
             speaker = step["speaker"]
-            speaker_name = get_entity_data(EntityID(("character", speaker)).get_file())[
-                "name"
-            ]
+            speaker_name = get_entity_data(EntityID(("character", speaker)).get_file())["name"]
             await renderer.send_dialogue(speaker_name, step["text"].format(player_name=get_player_state()["name"]))
             if "choices" in step:
-                choice = await renderer.send_option(
-                    list(map(lambda x: x["text"], step["choices"]))
-                )
-
+                choice = await renderer.send_option(list(map(lambda x: x["text"], step["choices"])))
                 selected_choice = step["choices"][choice]
                 run_effect(selected_choice.get("effect", "None"), current_entity)
-
-                if "retrospective" in step["choices"][choice]:
-                    if step["choices"][choice]["retrospective"]["type"] == "story":
-                        await renderer.send_story(step["choices"][choice]["retrospective"]["line"])
-                    if step["choices"][choice]["retrospective"]["type"] == "dialogue":
-                        await renderer.send_dialogue(get_player_state()["name"], step["choices"][choice]["retrospective"]["line"])
-
+                if "retrospective" in selected_choice:
+                    ret = selected_choice["retrospective"]
+                    if ret["type"] == "story":
+                        await renderer.send_story(ret["line"])
+                    if ret["type"] == "dialogue":
+                        await renderer.send_dialogue(get_player_state()["name"], ret["line"])
         case "stateUpdate":
             run_effect(step["update"], current_entity)
 
@@ -262,11 +268,9 @@ async def render_state():
         entity_states[current_entity].step += 1
         return await render_state()
     else:
-        if current_entity[0] == "quest" and entity_states[current_entity].variables[
-            "status"
-        ] in ["completed", "failed"]:
+        # quest completion cleanup
+        if current_entity[0] == "quest" and entity_states[current_entity].variables.get("status") in ["completed", "failed"]:
             entity_stack.pop()
-
             if len(entity_stack):
                 return await render_state()
             else:
@@ -274,26 +278,19 @@ async def render_state():
                 exit()
 
         # Move transition
-        for transition in current_state["transitions"]:
+        for transition in current_state.get("transitions", []):
             if run_effect(transition["condition"], current_entity):
-                entity_states[current_entity].state = transition[
-                    "target"
-                ]  # TODO: Tell Stormfly to enforce valid target names
-                entity_states[current_entity].step = (
-                    0  # TODO: Tell Stormfly to disallow empty states
-                )
+                entity_states[current_entity].state = transition["target"]
+                entity_states[current_entity].step = 0
                 return await render_state()
 
         raise Exception("ERROR: OUT OF TRANSITION TARGETS!!!")
 
-
 def character_interact(character: EntityID):
     assert character[0] == "character"
-    global entity_stack, entity_stack
+    global entity_stack, entity_states  # fixed duplicate name in original
 
-    opening_state = random.choice(
-        get_entity_data(character.get_file()).get("opening_states", ["__menu__"])
-    )
+    opening_state = random.choice(get_entity_data(character.get_file()).get("opening_states", ["__menu__"]))
     entity_states[character].state = opening_state
     entity_states[character].step = 0
     entity_stack.append(character)
