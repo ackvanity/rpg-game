@@ -20,11 +20,17 @@ class SimpleTextRenderer:
         return int(self.input_fn("Choose an choice: ")) - 1
 
 class UrwidTextRenderer:
-    def __init__(self, callback_asyncio):
+    async def placeholder(self):
+        pass
+
+    def __init__(self, exit_game):
+        self.exit_game = exit_game
         self.logger = logging.getLogger("GameLogger")
+        self.callback_asyncio = lambda: self.placeholder()
 
         self.palette = [
-            ("character_speak", "default,bold", "default", "bold")
+            ("character_speak", "default,bold", "default", "bold"),
+            ("danger_warning", "default,bold", "default", "bold")
         ]
 
         self.widgets: list[urwid.Widget] = [urwid.Text("HTTYD")]
@@ -37,11 +43,10 @@ class UrwidTextRenderer:
 
         self.main_loop = urwid.MainLoop(self.scrollbar, self.palette, event_loop=urwid_loop, unhandled_input=lambda x: self.handle_input(x))
 
-        asyncio_loop.create_task(self.render_tick())
-        asyncio_loop.create_task(callback_asyncio())
-
     def start(self):
         self.logger.info("urwid main loop starting.")
+        asyncio.get_event_loop().create_task(self.render_tick())
+        asyncio.get_event_loop().create_task(self.callback_asyncio())
         self.main_loop.run()
     
     async def render_tick(self):
@@ -52,7 +57,8 @@ class UrwidTextRenderer:
 
     def handle_input(self, key):
         if key in ('q', 'Q'):
-            raise urwid.ExitMainLoop()
+            asyncio.get_event_loop().create_task(self.exit_game())
+            self.widgets = [urwid.Text(("danger_warning", "SAVING GAME STATE..."))]
 
     async def send_dialogue(self, character: str, line: str):
         self.widgets.append(urwid.Text([("character_speak", character.upper()), ": ", line]))
@@ -77,3 +83,5 @@ class UrwidTextRenderer:
         self.widgets.pop()
 
         return selected_index
+
+renderer: UrwidTextRenderer = None # type: ignore
