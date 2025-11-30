@@ -2,7 +2,11 @@
     "dialogues": {
         "characters": {
             "farewell": ["Well, sorry I'm getting into the middle of something {character_name}. See you later!"],
-            "interact": ["Oh, hi {character_name}!"]
+            "interact": ["Oh, hi {character_name}!"],
+            "find_location": ["I wonder where {character_name} is now."]
         }
+    },
+    "states": {
+        "health": 100
     }
 }

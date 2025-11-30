@@ -21,7 +21,7 @@
   "toothless_death_msg": "Toothless perished in the woods, unable to escape the dangers.",
   "astrid_death_msg": null,
   "start_state": "travel_to_crash",
-  "start_character": "hiccup",
+  "start_entity": "character:hiccup",
   "start_line": "Are you making a new tailfin for Toothless? Can I see it in action?",
   "start_condition": "True",
   "states": {
@@ -219,8 +219,27 @@
     "return_home_hazard": {
       "steps": [
         {
+          "type": "dialogue",
+          "speaker": "hiccup",
+          "text": "Okay, let's go back quickly, then."
+        },
+        {
+          "type": "dialogue",
+          "speaker": "astrid",
+          "text": "Hiccup! Wait!"
+        },
+        {
           "type": "story",
-          "text": "In your rush, Toothless stumbles and Hiccup nearly falls. You barely recover."
+          "text": "A tight turn looms ahead. As Hiccup runs towards you, his peg leg creates a distinct slipping sound."
+        },
+        {
+          "type": "dialogue",
+          "speaker": "hiccup",
+          "text": "Hang on {character_name}, I'm coming! Oh no. TOOTHLESS! HEEELLLPPP!"
+        },
+        {
+          "type": "story",
+          "text": "In your rush, Toothless stumbles and Hiccup nearly falls from a cliff. You barely reached his arm in time."
         },
         {
           "type": "stateUpdate",
@@ -246,7 +265,7 @@
         },
         {
           "type": "stateUpdate",
-          "update": "quest_status = 'failed'\nhiccup_alive = False\ntoothless_alive = False\nastrid_trust -= 5"
+          "update": "quest_status = 'failed'\nhiccup_death_msg = 'Hiccup crashed while testing his tailfin, and is lost forever in the woods.'\ntoothless_death_msg = 'Toothless was trapped in the woods, and perished from its hostility.'\nastrid_trust -= 5"
         }
       ],
       "transitions": []

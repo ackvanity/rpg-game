@@ -8,10 +8,11 @@ from datetime import datetime
 from stoick import UrwidTextRenderer as Renderer
 import asyncio
 
-from gobber import save_game_state
+import gobber
 
 async def exit_game() -> NoReturn:
-    save_game_state()
+    if gobber.viking_file != "":
+        gobber.save_game_state()
     asyncio.get_event_loop().stop()
     while True:
         await asyncio.sleep(0)

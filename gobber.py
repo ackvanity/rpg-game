@@ -2,8 +2,12 @@ from typing import Any
 import asteval
 import json
 from pathlib import Path
+from os import listdir
+from os.path import isfile, join
 
 from ruffnut import logger
+
+SAVEGAME_FOLDER = "savegames"
 
 
 class EntityState:
@@ -45,6 +49,22 @@ class EntityID(tuple[str, str]):
         return self.__str__()
 
 
+def list_vikings():
+    save_files = [
+        f for f in listdir(SAVEGAME_FOLDER) if isfile(join(SAVEGAME_FOLDER, f))
+    ]
+
+    vikings_list = []
+
+    for save_file in save_files:
+        state = get_player_state(SAVEGAME_FOLDER + "/" + save_file)
+        name = state["name"]
+        fullname = state["fullname"]
+        vikings_list.append((name, fullname, save_file))
+
+    return vikings_list
+
+
 def get_entity_data(path: str):
     with open(path, "r") as f:
         return json.load(f)
@@ -55,39 +75,61 @@ def get_player_data():
         return json.load(f)
 
 
-def get_player_state():
-    with open("savegame.json", "r") as f:
+def get_player_state(filename=None):
+    if filename == None:
+        filename = viking_file
+
+    if filename == None:
+        raise Exception("No file to open!")
+
+    with open(filename, "r") as f:  # type: ignore
         return json.load(f)
 
 
+def set_player_file(filename):
+    global viking_file
+    viking_file = SAVEGAME_FOLDER + "/" + filename
+
+
 def set_player_state(obj):
-    with open("savegame.json", "w") as f:
+    with open(viking_file, "w") as f:
         return json.dump(obj, f)
 
 
 def load_entity(entity: EntityID):
     global entity_states, quest_triggers, character_locations
     character_data = get_entity_data(entity.get_file())
-    entity_states[entity] = EntityState("idle", character_data.get("variables", {}))
+    if entity not in entity_states:
+        entity_states[entity] = EntityState("idle", character_data.get("variables", {}))
+    else:
+        for k, v in character_data.get("variables", {}).items():
+            entity_states[entity].variables.setdefault(k, v)
 
     if entity[0] == "quest":
-        entity_states[entity].variables["status"] = "idle"
-        quest_triggers[get_entity_data(entity.get_file())["start_character"]] = (
-            quest_triggers.get(
-                get_entity_data(entity.get_file())["start_character"], []
-            )
+        entity_states[entity].variables.setdefault("status", "idle")
+        quest_triggers[get_entity_data(entity.get_file())["start_entity"]] = (
+            quest_triggers.get(get_entity_data(entity.get_file())["start_entity"], [])
         )
-        quest_triggers[get_entity_data(entity.get_file())["start_character"]].append(
+        if (
             entity
-        )
+            not in quest_triggers[get_entity_data(entity.get_file())["start_entity"]]
+        ):
+            quest_triggers[get_entity_data(entity.get_file())["start_entity"]].append(
+                entity
+            )
 
     if entity[0] == "character":
-        character_locations[get_entity_data(entity.get_file())["location"]] = (
-            character_locations.get(get_entity_data(entity.get_file())["location"], [])
+        entity_states[entity].variables.setdefault("death_msg", "")
+        character_locations[entity_states[entity].variables["location"]] = (
+            character_locations.get(entity_states[entity].variables["location"], [])
         )
-        character_locations[get_entity_data(entity.get_file())["location"]].append(
+        if (
             entity
-        )
+            not in character_locations[entity_states[entity].variables["location"]]
+        ):
+            character_locations[entity_states[entity].variables["location"]].append(
+                entity
+            )
 
 
 def load_game_state():
@@ -197,3 +239,5 @@ entity_states: dict[EntityID, EntityState] = {}
 entity_stack: list[EntityID] = []
 quest_triggers: dict[str, list[EntityID]] = {}
 character_locations: dict[str, list[EntityID]] = {}
+
+viking_file: str = None  # type: ignore

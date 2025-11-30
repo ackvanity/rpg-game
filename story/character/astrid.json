@@ -4,10 +4,14 @@
   "id": "astrid",
   "description": "A confident and determined Viking warrior, Astrid is known for her skill in combat and sharp instincts. She values discipline and loyalty, but has a compassionate side that shows when she trusts someone. She's quick to assess situations and isn't afraid to speak her mind, often challenging Hiccup to think more strategically.",
   "interactable": true,
-  "location": "berk_square",
   "opening_states": [
     "introduction_1",
     "introduction_2"
+  ],
+  "menu_lines": [
+    "So, what should we do today?",
+    "Got anything new?",
+    "Well, I hope Hiccup doesn't get into trouble again. What have you got for me?"
   ],
   "option_menus": [
     {
@@ -20,19 +24,19 @@
       "steps": [
         {
           "type": "dialogue",
-          "speaker": "Astrid",
+          "speaker": "astrid",
           "text": "Hey there! I'm Astrid. I don't have time for nonsense, so let's keep this quick."
         }
       ],
       "transitions": [
-        { "condition": "true", "target": "__menu__" }
+        { "condition": "True", "target": "__menu__" }
       ]
     },
     "introduction_2": {
       "steps": [
         {
           "type": "dialogue",
-          "speaker": "Astrid",
+          "speaker": "astrid",
           "text": "If you want to survive a dragon flight, you need to stay focused. I can show you the ropes if you're ready."
         },
         {
@@ -41,13 +45,13 @@
         }
       ],
       "transitions": [
-        { "condition": "true", "target": "__menu__" }
+        { "condition": "True", "target": "__menu__" }
       ]
     }
   },
   "variables": {
+    "location": "berk_square",
     "trust": 3,
-    "health": 100,
-    "location": "berk"
+    "health": 100
   }
 }

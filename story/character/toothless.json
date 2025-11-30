@@ -4,14 +4,15 @@
   "id": "toothless",
   "description": "A rare and intelligent Night Fury, Toothless is fiercely loyal to Hiccup and highly perceptive of his surroundings. Though playful and mischievous at times, he can be a formidable ally in flight and combat. His bond with Hiccup is deep, and he often communicates through gestures, expressions, and roars rather than words.",
   "interactable": false,
-  "location": "berk_square",
-  "opening_states": [],
   "states": {},
+  "menu_lines": [
+    "*roars*"
+  ],
   "variables": {
+    "location": "berk_square",
     "bonding_level": 2,
     "dominance": 2,
     "health": 100,
-    "speed": 50,
-    "location": "berk"
+    "speed": 50
   }
 }
