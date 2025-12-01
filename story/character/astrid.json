@@ -50,7 +50,7 @@
     }
   },
   "variables": {
-    "location": "berk_square",
+    "location": "berk_square", 
     "trust": 3,
     "health": 100
   }

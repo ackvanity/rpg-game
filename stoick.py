@@ -3,7 +3,6 @@ import urwid
 import ruffnut
 import sven
 
-
 class SimpleTextRenderer:
     def __init__(self):
         self.print_fn = print
@@ -45,7 +44,7 @@ class UrwidTextRenderer:
             ("character_speak", "light cyan,bold", "default"),
             ("danger_warning", "default,bold", "default", "bold"),
             ("banner", "dark red", "black", "default", "#B31D2C", "#527b95"),
-            ("bg1", "white", "black", None, "white", "#7A6656"),
+            ("bg1", "white", "black", None, "white", "#517787"),
             ("bg2", "white", "black", None, "white", "#BD8456")
         ]
 
@@ -121,11 +120,7 @@ class UrwidTextRenderer:
             asyncio.get_event_loop().create_task(self.exit_game())
 
         self.listwalker[:] = [
-            urwid.Padding(
-                urwid.BigText(("banner", "DRAGONS"), urwid.HalfBlock5x4Font()),
-                align="center",
-                width="clip",
-            ),
+            urwid.Padding(urwid.BigText(("banner", "DRAGONS"), urwid.HalfBlock5x4Font()),align="center",width="clip"),
             urwid.Padding(urwid.Text("On CLI"), align="center", width="clip"),
             urwid.Button("Start", on_start),
             urwid.Button("Exit", on_exit),
@@ -204,6 +199,7 @@ class UrwidTextRenderer:
         await done_event.wait()
         self.listwalker[:] = [urwid.Text("Loading")]
         return result
+
 
 
 renderer: UrwidTextRenderer = None  # type: ignore

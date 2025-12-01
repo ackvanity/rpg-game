@@ -176,7 +176,7 @@ def save_game_state():
     set_player_state(obj)
 
 
-def preload_story_entities(base_path="story"):
+def preload_story_entities(base_path="story", report=load_entity):
     """
     Preload all entities from story/*/*.json using load_entity().
     The base_path is relative to the current working directory by default.
@@ -195,7 +195,7 @@ def preload_story_entities(base_path="story"):
             if entity_type == "location" and entity_name == "connections":
                 continue
 
-            load_entity(EntityID((entity_type, entity_name)))
+            report(EntityID((entity_type, entity_name)))
             count += 1
 
     logger.info(f"Preloaded {count} story entities from '{base_path}'.")
