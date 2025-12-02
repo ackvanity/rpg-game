@@ -31,8 +31,8 @@ async def render_state() -> NoReturn:
     raise Exception("Current state not implemented!")
 
 
-def print(*args, **kwargs):
-    raise Exception("Non-rendering systems must use interfaced I/O methods")
+# def print(*args, **kwargs):
+#     raise Exception("Non-rendering systems must use interfaced I/O methods")
 
 
 def input(*args, **kwargs):
@@ -49,6 +49,5 @@ gobber.entity_stack = [gobber.EntityID(("init", "start_screen"))]
 astrid.render_state = render_state
 ack.render_state = render_state
 
-stoick.renderer = stoick.UrwidTextRenderer(exit_game)
-stoick.renderer.callback_asyncio = render_state
-stoick.renderer.start()
+stoick.renderer = stoick.TextualRenderer(exit_game, render_state)
+stoick.renderer.run()

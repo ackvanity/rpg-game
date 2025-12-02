@@ -1,5 +1,6 @@
 from typing import NoReturn
 import uuid
+import asyncio
 
 from ruffnut import logger
 import astrid
@@ -22,18 +23,23 @@ async def draw_this(current_entity: gobber.EntityID):
     elif current_entity[0] == "init" and current_entity[1] == "viking_select":
         vikings_list = gobber.list_vikings()
         viking_idx = await stoick.renderer.send_viking_select(vikings_list)
+        print(viking_idx)
 
         if viking_idx == -1:
             gobber.entity_stack.pop()
+            print("GOIN BACK")
             await render_state()
         elif viking_idx == len(vikings_list):
             gobber.entity_stack.append(gobber.EntityID(("init", "viking_create")))
             await render_state()
         else:
             gobber.set_player_file(vikings_list[viking_idx][2])
-            logger.info(viking_idx)
+            print(viking_idx, vikings_list[viking_idx])
             gobber.load_game_state()
             gobber.preload_story_entities()
+            await asyncio.sleep(0)
+            await stoick.renderer.clear_screen(ask=False)
+            stoick.renderer.log(stoick.renderer.dialogue_container.children)
             await render_state()
     elif current_entity[0] == "init" and current_entity[1] == "viking_create":
         go_ahead, viking_name, viking_fullname = (

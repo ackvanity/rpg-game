@@ -187,14 +187,20 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
         exit_game()
 
     if current_entity[0] == "location" and state.state == "__menu__":
+        await stoick.renderer.clear_screen(ask = False)
+
         location_ambient = random.choice(entity_file["ambient"])
 
         options = _location_world_to_player(current_entity)
 
+        print("AMBIENCE")
+
         await stoick.renderer.send_story(location_ambient)
+        print("AMBIENT")
 
         logger.info(options)
 
+        print("CHOIE")
         selected_choice = await _ask_player(options)
 
         exec(selected_choice.get("effect", "None"), globals(), locals())
