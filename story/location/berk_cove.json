@@ -1,5 +1,8 @@
 {
     "name": "The Cove",
     "id": "berk_cove",
-    "description": "Hidden deep in the woods, ringed by towering stone walls and a still pool at its center. The air here is quiet, untouched by village noise. It's the place where human and dragon first met in peace — a sanctuary for reflection, memory, and beginnings."
+    "description": "Hidden deep in the woods, ringed by towering stone walls and a still pool at its center. The air here is quiet, untouched by village noise. It's the place where human and dragon first met in peace — a sanctuary for reflection, memory, and beginnings.",
+    "ambient": [
+        "Leaves whisper high above the rock walls, and the pool mirrors the sky in perfect stillness. Ripples spread as a dragon drinks, the only movement in the calm. Every sound feels softer here — as if the island itself remembers what began in this place."
+    ]
 }

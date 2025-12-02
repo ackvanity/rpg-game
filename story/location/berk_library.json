@@ -1,5 +1,8 @@
 {
     "name": "Fishlegs' Library",
     "id": "berk_library",
-    "description": "Half hut, half museum, and entirely cluttered. Scrolls, sketches, and scales from every known species pile up in precarious stacks. Fishlegs insists there's a system, but it's one only he understands. The scent of parchment and ink mixes with the faint musk of dragon hide."
+    "description": "Half hut, half museum, and entirely cluttered. Scrolls, sketches, and scales from every known species pile up in precarious stacks. Fishlegs insists there's a system, but it's one only he understands. The scent of parchment and ink mixes with the faint musk of dragon hide.",
+    "ambient": [
+        "The soft rustle of parchment and the scratch of a quill fill the space. Dragons’ shadows flicker through the window as Fishlegs mutters trivia to himself: “Did you know the Monstrous Nightmare’s wingspan— oh, right, nobody’s here.” A candle guttering on the desk casts a warm, golden glow."
+    ]
 }

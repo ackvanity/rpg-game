@@ -1,5 +1,8 @@
 {
     "name": "The Lookout",
     "id": "berk_lookout",
-    "description": "Perched high on the cliffs, this wooden tower leans into the endless wind. From here, the whole Archipelago spreads out like a map of mist and sea. Watchers take shifts spotting incoming ships, wild dragons, or storms. On clear nights, you can see the aurora dancing above the horizon."
+    "description": "Perched high on the cliffs, this wooden tower leans into the endless wind. From here, the whole Archipelago spreads out like a map of mist and sea. Watchers take shifts spotting incoming ships, wild dragons, or storms. On clear nights, you can see the aurora dancing above the horizon.",
+    "ambient": [
+        "Wind whistles through the beams, carrying the cry of gulls and the distant roar of the sea. A dragon’s silhouette crosses the sun, momentarily darkening the waves below. The horizon seems endless, painted with mist and the promise of something unknown."
+    ]
 }

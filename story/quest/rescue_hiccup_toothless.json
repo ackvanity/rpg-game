@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
   "id": "rescue_hiccup_toothless",
   "title": "Rescue Hiccup and Toothless",
   "description": "Hiccup and Toothless crashed into the woods. You must save them and bring them home safely.",

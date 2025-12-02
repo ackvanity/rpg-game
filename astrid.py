@@ -10,7 +10,7 @@ import stoick
 
 
 def _character_talk_to_player(character_entity: gobber.EntityID):
-    char_data = gobber.get_entity_data(character_entity.get_file())
+    char_data = gobber.get_entity_data(character_entity)
 
     def transition_state(option):
         # don't mutate original option objects in char files
@@ -24,7 +24,7 @@ def _character_talk_to_player(character_entity: gobber.EntityID):
 
     # Append quests that can start
     for i, quest in enumerate(gobber.quest_triggers.get(str(character_entity), [])):
-        quest_data = gobber.get_entity_data(quest.get_file())
+        quest_data = gobber.get_entity_data(quest)
         # check start_condition and quest status
         if (
             gobber.run_effect(quest_data["start_condition"], quest)
@@ -63,7 +63,7 @@ def _location_world_to_player(location_entity: gobber.EntityID):
 
     # Append quests that can start
     for i, quest in enumerate(gobber.quest_triggers.get(str(location_entity), [])):
-        quest_data = gobber.get_entity_data(quest.get_file())
+        quest_data = gobber.get_entity_data(quest)
         # check start_condition and quest status
         if (
             gobber.run_effect(quest_data["start_condition"], quest)
@@ -84,7 +84,7 @@ def _location_world_to_player(location_entity: gobber.EntityID):
     for i, character in enumerate(
         gobber.character_locations.get(location_entity[1], [])
     ):
-        character_data = gobber.get_entity_data(character.get_file())
+        character_data = gobber.get_entity_data(character)
 
         logger.info(gobber.run_effect("character_death_msg", character))
         logger.info(gobber.run_effect("character_health", character))
@@ -94,11 +94,29 @@ def _location_world_to_player(location_entity: gobber.EntityID):
         options.append(
             {
                 "text": random.choice(
-                    gobber.get_player_data()["dialogues"]["characters"]["interact"] if gobber.run_effect("len(character_death_msg) == 0", character) else gobber.get_player_data()["dialogues"]["characters"]["find_location"]
+                    gobber.get_player_data()["dialogues"]["characters"]["interact"]
+                    if gobber.run_effect("len(character_death_msg) == 0", character)
+                    else gobber.get_player_data()["dialogues"]["characters"][
+                        "find_location"
+                    ]
                 ).format(character_name=character_data["name"]),
                 "effect": f"introduce_character(gobber.character_locations.get('{location_entity[1]}', [])[{i}])",
             }
         )
+
+    try:
+        for connection in gobber.travel_paths[location_entity]:
+            stoick.renderer.log(gobber.get_entity_data(connection))
+
+            options.append(
+                {
+                    "text": gobber.get_entity_data(connection)["action"],
+                    "effect": f"gobber.entity_stack.pop(); tread_connection(gobber.EntityID(('connection', '{connection[1]}')))",
+                }
+            )
+            print(f"gobber.entity_stack.pop(); tread_connection(gobber.EntityID(('connection', '{connection[1]}')))")
+    except Exception as e:
+        stoick.renderer.log("ERROR RENDERING", str(e))
 
     return options
 
@@ -114,23 +132,37 @@ async def _ask_player(options):
             ret = selected_choice["retrospective"]
             if ret["type"] == "story":
                 await stoick.renderer.send_story(ret["line"])
-            if ret["type"] == "dialogue":
+            elif ret["type"] == "dialogue":
                 await stoick.renderer.send_dialogue(
                     gobber.get_player_state()["name"], ret["line"]
                 )
+            elif ret["type"] == "skip":
+                pass
+        else:
+            await stoick.renderer.send_dialogue(
+                gobber.get_player_state()["name"], selected_choice["text"]
+            )
 
         return selected_choice
 
     return {}
 
+def load_entity(entity: gobber.EntityID):
+    opening_state = random.choice(
+        gobber.get_entity_data(entity).get("opening_states", ["__menu__"])
+    )
+    gobber.entity_states[entity].state = opening_state
+    gobber.entity_states[entity].step = 0
+    gobber.entity_stack.append(entity)
+
 
 def introduce_character(character: gobber.EntityID):
     assert character[0] == "character"
 
-    logger.info(gobber.get_entity_data(character.get_file()).get("opening_states", ["__menu__"]))
+    return load_entity(character)
 
     opening_state = random.choice(
-        gobber.get_entity_data(character.get_file()).get("opening_states", ["__menu__"])
+        gobber.get_entity_data(character).get("opening_states", ["__menu__"])
     )
     gobber.entity_states[character].state = opening_state
     gobber.entity_states[character].step = 0
@@ -140,13 +172,20 @@ def introduce_character(character: gobber.EntityID):
 def reveal_location(location: gobber.EntityID):
     assert location[0] == "location"
 
+    return load_entity(location)
+
     opening_state = random.choice(
-        gobber.get_entity_data(location.get_file()).get("opening_states", ["__menu__"])
+        gobber.get_entity_data(location).get("opening_states", ["__menu__"])
     )
     gobber.entity_states[location].state = opening_state
     gobber.entity_states[location].step = 0
     gobber.entity_stack.append(location)
 
+def tread_connection(connection: gobber.EntityID):
+    print("TREADING", connection)
+    assert connection[0] == "connection"
+
+    return load_entity(connection)
 
 def handles_this(current_entity: gobber.EntityID):
     if current_entity[0] == "character":
@@ -154,6 +193,8 @@ def handles_this(current_entity: gobber.EntityID):
     if current_entity[0] == "location":
         return True
     if current_entity[0] == "quest":
+        return True
+    if current_entity[0] == "connection":
         return True
 
     return False
@@ -163,7 +204,7 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
     state = gobber.entity_states[current_entity]
 
     # quick local cache for repeated reads
-    entity_file = gobber.get_entity_data(current_entity.get_file())
+    entity_file = gobber.get_entity_data(current_entity)
 
     # We can never talk to a dead character
     if current_entity[0] == "character":
@@ -171,6 +212,7 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
             await stoick.renderer.send_story(
                 str(gobber.run_effect("character_death_msg", current_entity))
             )
+            await stoick.renderer.clear_screen()
             gobber.entity_stack.pop()
             await render_state()
 
@@ -187,23 +229,26 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
         exit_game()
 
     if current_entity[0] == "location" and state.state == "__menu__":
-        await stoick.renderer.clear_screen(ask = False)
-
         location_ambient = random.choice(entity_file["ambient"])
 
         options = _location_world_to_player(current_entity)
 
-        print("AMBIENCE")
-
         await stoick.renderer.send_story(location_ambient)
-        print("AMBIENT")
 
         logger.info(options)
 
-        print("CHOIE")
         selected_choice = await _ask_player(options)
 
+        print(selected_choice.get("effect", "None"))
+
         exec(selected_choice.get("effect", "None"), globals(), locals())
+        await render_state()
+        exit_game()
+    
+    if current_entity[0] == "connection" and state.state == "__menu__":
+        print("CONTINUING TO", gobber.get_entity_data(current_entity)["to"])
+        gobber.entity_stack.pop()
+        reveal_location(gobber.EntityID(("location", gobber.get_entity_data(current_entity)["to"])))
         await render_state()
         exit_game()
 
@@ -217,7 +262,7 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
         case "dialogue":
             speaker = step["speaker"]
             speaker_name = gobber.get_entity_data(
-                gobber.EntityID(("character", speaker)).get_file()
+                gobber.EntityID(("character", speaker))
             )["name"]
 
             await stoick.renderer.send_dialogue(speaker_name, step["text"])

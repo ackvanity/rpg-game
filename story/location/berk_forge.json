@@ -1,5 +1,8 @@
 {
     "name": "Gobber's Forge",
     "id": "berk_forge",
-    "description": "Sparks fly, bellows groan, and Gobber's booming laugh drowns out the roar of the fires. Blades, saddles, and dragon armor hang from every rafter. The air smells of iron, leather, and the faint singe of dragon breath. If it can be built — or blown up — it's built here."
+    "description": "Sparks fly, bellows groan, and Gobber's booming laugh drowns out the roar of the fires. Blades, saddles, and dragon armor hang from every rafter. The air smells of iron, leather, and the faint singe of dragon breath. If it can be built — or blown up — it's built here.",
+    "ambient": [
+        "The steady clang… hiss… clang of hammer and steam echoes across the yard. Gobber’s mumbling blends with the roar of the forge as sparks leap into the rafters. Somewhere, a half-finished contraption coughs, whirs, and promptly explodes. Gobber doesn’t even look up."
+    ]
 }

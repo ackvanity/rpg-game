@@ -1,5 +1,8 @@
 {
     "name": "The Dragon Stables",
     "id": "berk_stables",
-    "description": "Warm air thick with hay and smoke hums with the sounds of snoring dragons. Each stall holds a partner, not a pet — a winged comrade. Tools, fish barrels, and worn flight gear line the walls. It's chaotic, loud, and oddly comforting — home for half the tribe."
+    "description": "Warm air thick with hay and smoke hums with the sounds of snoring dragons. Each stall holds a partner, not a pet — a winged comrade. Tools, fish barrels, and worn flight gear line the walls. It's chaotic, loud, and oddly comforting — home for half the tribe.",
+    "ambient": [
+        "A low chorus of dragon snores fills the cavern, punctuated by the clatter of fish buckets and the creak of wood. Scales shimmer in the dim light, shifting lazily as tails twitch in dreams. The air is warm, heavy with smoke and the faint scent of salt and straw."
+    ]
 }

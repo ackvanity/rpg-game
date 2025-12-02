@@ -1,5 +1,8 @@
 {
     "name": "Astrid's Cliff",
     "id": "berk_cliff",
-    "description": "A lonely stretch of rock overlooking the sea, marked with practice dummies and axe targets. Stormfly perches nearby, watching with keen eyes as Astrid hones her aim. The wind here bites, but the view — endless sky and churning sea — never fails to steady the heart."
+    "description": "A lonely stretch of rock overlooking the sea, marked with practice dummies and axe targets. Stormfly perches nearby, watching with keen eyes as Astrid hones her aim. The wind here bites, but the view — endless sky and churning sea — never fails to steady the heart.",
+    "ambient": [
+        "Waves crash far below, and the wind sings against the stone. Astrid’s axe thuds into a wooden dummy, steady and sure, while Stormfly coos nearby. For a moment, the noise fades — just sea, sky, and breath — and the world feels fiercely, quietly alive."
+    ]
 }

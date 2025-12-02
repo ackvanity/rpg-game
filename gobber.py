@@ -48,7 +48,6 @@ class EntityID(tuple[str, str]):
     def __repr__(self):
         return self.__str__()
 
-
 def list_vikings():
     save_files = [
         f for f in listdir(SAVEGAME_FOLDER) if isfile(join(SAVEGAME_FOLDER, f))
@@ -65,8 +64,14 @@ def list_vikings():
     return vikings_list
 
 
-def get_entity_data(path: str):
-    with open(path, "r") as f:
+def get_entity_data(entity: EntityID):
+    file = entity.get_file()
+    if entity[0] == "connection":
+        file = EntityID(("location", "connections")).get_file()
+    with open(file, "r") as f:
+        if entity[0] == "connection":
+            return json.load(f)[entity[1]]
+
         return json.load(f)
 
 
@@ -98,7 +103,7 @@ def set_player_state(obj):
 
 def load_entity(entity: EntityID):
     global entity_states, quest_triggers, character_locations
-    character_data = get_entity_data(entity.get_file())
+    character_data = get_entity_data(entity)
     if entity not in entity_states:
         entity_states[entity] = EntityState("idle", character_data.get("variables", {}))
     else:
@@ -107,14 +112,14 @@ def load_entity(entity: EntityID):
 
     if entity[0] == "quest":
         entity_states[entity].variables.setdefault("status", "idle")
-        quest_triggers[get_entity_data(entity.get_file())["start_entity"]] = (
-            quest_triggers.get(get_entity_data(entity.get_file())["start_entity"], [])
+        quest_triggers[get_entity_data(entity)["start_entity"]] = (
+            quest_triggers.get(get_entity_data(entity)["start_entity"], [])
         )
         if (
             entity
-            not in quest_triggers[get_entity_data(entity.get_file())["start_entity"]]
+            not in quest_triggers[get_entity_data(entity)["start_entity"]]
         ):
-            quest_triggers[get_entity_data(entity.get_file())["start_entity"]].append(
+            quest_triggers[get_entity_data(entity)["start_entity"]].append(
                 entity
             )
 
@@ -130,6 +135,16 @@ def load_entity(entity: EntityID):
             character_locations[entity_states[entity].variables["location"]].append(
                 entity
             )
+
+def load_connections(file: str):
+    with open(file, "r") as f:
+        connections = json.load(f)
+        for id, data in connections.items():
+            entity = EntityID(("connection", id))
+            load_entity(entity)
+
+            travel_paths[EntityID(("location", data["from"]))] = travel_paths.get(EntityID(("location", data["from"])), [])
+            travel_paths[EntityID(("location", data["from"]))].append(entity)
 
 
 def load_game_state():
@@ -193,10 +208,10 @@ def preload_story_entities(base_path="story", report=load_entity):
             entity_type = type_dir.name
             entity_name = file_path.stem  # filename without .json
             if entity_type == "location" and entity_name == "connections":
-                continue
-
-            report(EntityID((entity_type, entity_name)))
-            count += 1
+                load_connections(EntityID((entity_type, entity_name)).get_file())
+            else:
+                report(EntityID((entity_type, entity_name)))
+                count += 1
 
     logger.info(f"Preloaded {count} story entities from '{base_path}'.")
 
@@ -210,7 +225,7 @@ def run_effect(effect: str, entity: EntityID):
 
     # Referenced character states
     for character_name in (
-        get_entity_data(entity.get_file()).get("characters", {}).keys()
+        get_entity_data(entity).get("characters", {}).keys()
     ):
         character_entity = EntityID(("character", character_name))
         for var, value in entity_states[character_entity].variables.items():
@@ -224,7 +239,7 @@ def run_effect(effect: str, entity: EntityID):
 
     # Referenced character states
     for character_name in (
-        get_entity_data(entity.get_file()).get("characters", {}).keys()
+        get_entity_data(entity).get("characters", {}).keys()
     ):
         character_entity = EntityID(("character", character_name))
         for var, value in entity_states[character_entity].variables.items():
@@ -239,5 +254,6 @@ entity_states: dict[EntityID, EntityState] = {}
 entity_stack: list[EntityID] = []
 quest_triggers: dict[str, list[EntityID]] = {}
 character_locations: dict[str, list[EntityID]] = {}
+travel_paths: dict[EntityID, list[EntityID]] = {}
 
 viking_file: str = None  # type: ignore

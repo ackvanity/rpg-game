@@ -38,10 +38,6 @@ async def render_state() -> NoReturn:
 def input(*args, **kwargs):
     raise Exception("Non-rendering systems must use interfaced I/O methods")
 
-
-logger.info("Loading entities")
-gobber.preload_story_entities()
-
 # astrid.introduce_character(EntityID(("character", "hiccup")))
 # astrid.reveal_location(gobber.EntityID(("location", "berk_square")))
 

@@ -1,8 +1,6 @@
 from typing import NoReturn
 import uuid
 import asyncio
-
-from ruffnut import logger
 import astrid
 import gobber
 import stoick
@@ -39,7 +37,6 @@ async def draw_this(current_entity: gobber.EntityID):
             gobber.preload_story_entities()
             await asyncio.sleep(0)
             await stoick.renderer.clear_screen(ask=False)
-            stoick.renderer.log(stoick.renderer.dialogue_container.children)
             await render_state()
     elif current_entity[0] == "init" and current_entity[1] == "viking_create":
         go_ahead, viking_name, viking_fullname = (
@@ -60,6 +57,9 @@ async def draw_this(current_entity: gobber.EntityID):
                     "states": gobber.get_player_data()["states"],
                 }
             )
+            gobber.preload_story_entities()
+            
+            await stoick.renderer.clear_screen(ask=False)
 
             astrid.reveal_location(gobber.EntityID(("location", "berk_square")))
             gobber.save_game_state()

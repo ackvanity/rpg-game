@@ -1,5 +1,8 @@
 {
     "name": "Hiccup's Workshop",
     "id": "berk_workshop",
-    "description": "A tangle of sketches, gears, and metal scraps scattered across every surface. Toothless naps in the corner while Hiccup mutters about lift ratios and tail fins. The place smells like oil, soot, and bright ideas. From here, Berk's strangest and most brilliant inventions take flight."
+    "description": "A tangle of sketches, gears, and metal scraps scattered across every surface. Toothless naps in the corner while Hiccup mutters about lift ratios and tail fins. The place smells like oil, soot, and bright ideas. From here, Berk's strangest and most brilliant inventions take flight.",
+    "ambient": [
+        "Wind rattles the shutters, papers flutter, and a loose gear rolls across the floor. The faint scent of oil and ozone lingers as Toothless eyes a new gadget with suspicion. Hiccup’s notes — half equations, half doodles — are scattered like breadcrumbs leading to genius."
+    ]
 }

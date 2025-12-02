@@ -1,5 +1,8 @@
 {
     "name": "The Training Arena",
     "id": "berk_arena",
-    "description": "A circular pit of scorched earth and broken spears. The stands are empty more often than not, but the echoes of roaring dragons and cheering Vikings linger. It's where riders learn trust — and where overconfidence earns singed eyebrows."
+    "description": "A circular pit of scorched earth and broken spears. The stands are empty more often than not, but the echoes of roaring dragons and cheering Vikings linger. It's where riders learn trust — and where overconfidence earns singed eyebrows.",
+    "ambient": [
+        "The scent of scorched earth lingers beneath a sky filled with drifting smoke. A Gronckle snoozes beside the fence while a young Viking practices sword swings that slice only air. Somewhere, armor clinks and someone mutters, “again,” to nobody in particular."
+    ]
 }
