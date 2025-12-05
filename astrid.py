@@ -1,5 +1,5 @@
 import random
-from typing import NoReturn
+from typing import NoReturn, Any
 import random
 import asyncio
 
@@ -7,6 +7,128 @@ from ruffnut import logger
 from tuffnut import exit_game
 import gobber
 import stoick
+from textual.widgets import Static, Button
+from textual.widget import Widget
+from textual.app import ComposeResult
+from textual.containers import VerticalGroup, Horizontal, CenterMiddle
+
+class AstridWidget(Widget):
+    async def mission(self, rider: Any) -> Any: ...
+
+
+class Astrid(VerticalGroup, stoick.ScreenRider):
+
+    def __init__(self, *children: AstridWidget, **kwargs):
+        super().__init__(*children, **kwargs)
+        self.to_mount: list[Widget] = []
+        self.mounted = False
+        self.center = CenterMiddle()
+    
+    async def leave(self):
+        if self.mounted:
+            to_remove = list(self.children)
+
+            for child in to_remove:
+                self.to_mount.append(child)
+                await child.remove()
+
+            await self.remove()
+            await self.center.remove()
+
+            self.mounted = False
+    
+    async def assign(self, renderer: stoick.TextualRenderer):
+        if not self.mounted:
+            renderer.app_container.mount(self.center)
+            self.center.mount(self)
+
+            self.mounted = True
+
+        for child in self.to_mount:
+            self.mount(child)
+
+    async def mission(self, renderer: stoick.TextualRenderer):
+        await self.assign(renderer)
+
+        for candidate in self.to_mount:
+            self.mount(candidate)
+        
+        self.to_mount.clear()
+
+        return await self.children[-1].mission(self)  # type: ignore
+
+
+
+class Story(VerticalGroup, AstridWidget):
+    def __init__(self, story, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.story = story
+
+    def compose(self) -> ComposeResult:
+        yield Static(self.story)
+
+    async def mission(self, rider: Any):
+        pass
+
+class Dialogue(AstridWidget):
+    def __init__(self, speaker: str, text: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.speaker = speaker.upper()
+        self.text = text
+
+    def compose(self) -> ComposeResult:
+        yield Static(self.speaker, classes="speaker")
+        yield Static(self.text, classes="text")
+
+    async def mission(self, rider: Any):
+        pass
+
+
+class Option(VerticalGroup, AstridWidget):
+    async def on_button_pressed(self, event: Button.Pressed):
+        bid: str = event.button.id  # type: ignore
+
+        if bid.startswith("opt_"):
+            self.selected_event.set()
+            self.selected_option = int(bid.split("_")[1])
+            event.stop()
+
+    def __init__(self, options: list[str], *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.options = options
+        self.selected_event = asyncio.Event()
+        self.selected_option = -1
+
+    def compose(self) -> ComposeResult:
+        for idx, option in enumerate(self.options):
+            yield Button(option, id=f"opt_{idx}")
+
+    async def mission(self, rider: Any):
+        self.selected_event.clear()
+        self.selected_option = 0
+
+        await self.selected_event.wait()
+        await self.remove()
+
+        return self.selected_option
+
+
+stormfly = Astrid()
+
+
+async def _send_story(story: str):
+    stormfly.to_mount.append(Story(story))
+    return await stoick.renderer.send_rider(stormfly)
+
+
+async def _send_dialogue(speaker: str, text: str):
+    stormfly.to_mount.append(Dialogue(speaker, text))
+    return await stoick.renderer.send_rider(stormfly)
+
+
+async def _send_option(options: list[str]):
+    stormfly.to_mount.append(Option(options))
+    return await stoick.renderer.send_rider(stormfly)
 
 
 def _character_talk_to_player(character_entity: gobber.EntityID):
@@ -90,7 +212,6 @@ def _location_world_to_player(location_entity: gobber.EntityID):
         logger.info(gobber.run_effect("character_health", character))
         logger.info(gobber.run_effect("character_name", character))
 
-        # if gobber.run_effect("len(character_death_msg) == 0", character):
         options.append(
             {
                 "text": random.choice(
@@ -104,48 +225,40 @@ def _location_world_to_player(location_entity: gobber.EntityID):
             }
         )
 
-    try:
-        for connection in gobber.travel_paths[location_entity]:
-            stoick.renderer.log(gobber.get_entity_data(connection))
+    for connection in gobber.travel_paths[location_entity]:
 
-            options.append(
-                {
-                    "text": gobber.get_entity_data(connection)["action"],
-                    "effect": f"gobber.entity_stack.pop(); tread_connection(gobber.EntityID(('connection', '{connection[1]}')))",
-                }
-            )
-            print(f"gobber.entity_stack.pop(); tread_connection(gobber.EntityID(('connection', '{connection[1]}')))")
-    except Exception as e:
-        stoick.renderer.log("ERROR RENDERING", str(e))
+        options.append(
+            {
+                "text": gobber.get_entity_data(connection)["action"],
+                "effect": f"gobber.entity_stack.pop(); tread_connection(gobber.EntityID(('connection', '{connection[1]}')))",
+            }
+        )
 
     return options
 
 
 async def _ask_player(options):
     if options != None:
-        choice = await stoick.renderer.send_option(
-            [option["text"] for option in options]
-        )
+        choice = await _send_option([option["text"] for option in options])
         selected_choice = options[choice]
 
         if "retrospective" in selected_choice:
             ret = selected_choice["retrospective"]
             if ret["type"] == "story":
-                await stoick.renderer.send_story(ret["line"])
+                await _send_story(ret["line"])
             elif ret["type"] == "dialogue":
-                await stoick.renderer.send_dialogue(
-                    gobber.get_player_state()["name"], ret["line"]
-                )
+                await _send_dialogue(gobber.get_player_state()["name"], ret["line"])
             elif ret["type"] == "skip":
                 pass
         else:
-            await stoick.renderer.send_dialogue(
+            await _send_dialogue(
                 gobber.get_player_state()["name"], selected_choice["text"]
             )
 
         return selected_choice
 
     return {}
+
 
 def load_entity(entity: gobber.EntityID):
     opening_state = random.choice(
@@ -181,13 +294,14 @@ def reveal_location(location: gobber.EntityID):
     gobber.entity_states[location].step = 0
     gobber.entity_stack.append(location)
 
+
 def tread_connection(connection: gobber.EntityID):
-    print("TREADING", connection)
     assert connection[0] == "connection"
 
     return load_entity(connection)
 
-def handles_this(current_entity: gobber.EntityID):
+
+async def handles_this(current_entity: gobber.EntityID):
     if current_entity[0] == "character":
         return True
     if current_entity[0] == "location":
@@ -196,6 +310,9 @@ def handles_this(current_entity: gobber.EntityID):
         return True
     if current_entity[0] == "connection":
         return True
+
+    await stormfly.leave()
+    stormfly.to_mount.clear()
 
     return False
 
@@ -209,10 +326,10 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
     # We can never talk to a dead character
     if current_entity[0] == "character":
         if gobber.run_effect("len(character_death_msg) != 0", current_entity):
-            await stoick.renderer.send_story(
+            await _send_story(
                 str(gobber.run_effect("character_death_msg", current_entity))
             )
-            await stoick.renderer.clear_screen()
+            await _send_option(["Continue"])
             gobber.entity_stack.pop()
             await render_state()
 
@@ -222,7 +339,7 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
 
         options = _character_talk_to_player(current_entity)
 
-        await stoick.renderer.send_dialogue(character_name, character_line)
+        await _send_dialogue(character_name, character_line)
         selected_choice = await _ask_player(options)
         exec(selected_choice.get("effect", "None"), globals(), locals())
         await render_state()
@@ -233,22 +350,21 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
 
         options = _location_world_to_player(current_entity)
 
-        await stoick.renderer.send_story(location_ambient)
+        await _send_story(location_ambient)
 
         logger.info(options)
 
         selected_choice = await _ask_player(options)
 
-        print(selected_choice.get("effect", "None"))
-
         exec(selected_choice.get("effect", "None"), globals(), locals())
         await render_state()
         exit_game()
-    
+
     if current_entity[0] == "connection" and state.state == "__menu__":
-        print("CONTINUING TO", gobber.get_entity_data(current_entity)["to"])
         gobber.entity_stack.pop()
-        reveal_location(gobber.EntityID(("location", gobber.get_entity_data(current_entity)["to"])))
+        reveal_location(
+            gobber.EntityID(("location", gobber.get_entity_data(current_entity)["to"]))
+        )
         await render_state()
         exit_game()
 
@@ -258,14 +374,14 @@ async def draw_this(current_entity: gobber.EntityID) -> NoReturn:
 
     match step["type"]:
         case "story":
-            await stoick.renderer.send_story(step["text"])
+            await _send_story(step["text"])
         case "dialogue":
             speaker = step["speaker"]
             speaker_name = gobber.get_entity_data(
                 gobber.EntityID(("character", speaker))
             )["name"]
 
-            await stoick.renderer.send_dialogue(speaker_name, step["text"])
+            await _send_dialogue(speaker_name, step["text"])
             selected_choice = await _ask_player(step.get("choices", None))
             gobber.run_effect(selected_choice.get("effect", "None"), current_entity)
         case "stateUpdate":

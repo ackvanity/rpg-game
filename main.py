@@ -23,9 +23,9 @@ async def render_state() -> NoReturn:
 
     current_entity = gobber.entity_stack[-1]
 
-    if astrid.handles_this(current_entity):
+    if await astrid.handles_this(current_entity):
         await astrid.draw_this(current_entity)
-    elif ack.handles_this(current_entity):
+    elif await ack.handles_this(current_entity):
         await ack.draw_this(current_entity)
 
     raise Exception("Current state not implemented!")
@@ -37,9 +37,6 @@ async def render_state() -> NoReturn:
 
 def input(*args, **kwargs):
     raise Exception("Non-rendering systems must use interfaced I/O methods")
-
-# astrid.introduce_character(EntityID(("character", "hiccup")))
-# astrid.reveal_location(gobber.EntityID(("location", "berk_square")))
 
 gobber.entity_stack = [gobber.EntityID(("init", "start_screen"))]
 astrid.render_state = render_state

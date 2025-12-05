@@ -1,0 +1,100 @@
+{
+  "c3fa4b5e-3c76-4d49-8e95-3b8c2ef911aa": {
+    "from": "berk_cliff",
+    "to": "berk_lookout",
+    "action": "Maybe I can take the ridge path climbing up through the wind. The stones look firm enough to follow."
+  },
+  "4aa9a0d7-67c2-4d74-9d57-8a7ec8b248d8": {
+    "from": "berk_lookout",
+    "to": "berk_cliff",
+    "action": "I could head down this sloping path again. The ground dips steadily back toward the cliffside."
+  },
+
+  "55fa1272-8541-4e0c-9f96-1f7b7c3f3ca3": {
+    "from": "berk_cliff",
+    "to": "berk_stables",
+    "action": "There's a winding track dropping from the cliff. I could follow it if I watch my footing."
+  },
+  "e600bb95-892e-4c9a-b26b-f6c7d6b138bf": {
+    "from": "berk_stables",
+    "to": "berk_cliff",
+    "action": "That dirt path rises back up toward the cliff. I can take it if I'm ready for a bit of a climb."
+  },
+
+  "19ee2af7-94b4-4dd2-b60a-897aa3aa7cfd": {
+    "from": "berk_stables",
+    "to": "berk_square",
+    "action": "The lane ahead looks open enough. I can walk it straight into the busier part of the village."
+  },
+  "6f859f79-46e1-4fa4-badd-9ba1cd2a18b8": {
+    "from": "berk_square",
+    "to": "berk_stables",
+    "action": "I could follow the open lane leading downhill. The ground's packed smooth from dragon claws and boots."
+  },
+
+  "287f4c50-4e55-408a-986b-0bbe79d58bde": {
+    "from": "berk_square",
+    "to": "berk_great_hall",
+    "action": "Those rising stone steps look solid. I can head up them toward the big timber structure ahead."
+  },
+  "f67a7e87-220f-4f69-be01-9c3cb7047c5f": {
+    "from": "berk_great_hall",
+    "to": "berk_square",
+    "action": "I can follow the short walkway down. The square sits right at the end of it."
+  },
+
+  "e1a5bfc7-d6f5-4ac5-8d1b-84a8a49c3dc3": {
+    "from": "berk_square",
+    "to": "berk_forge",
+    "action": "There's a narrow alley here. I could slip through it and see where all that hammering is coming from."
+  },
+  "817c031f-a5f4-4924-9fd6-85e5b28a4e50": {
+    "from": "berk_forge",
+    "to": "berk_square",
+    "action": "I can head back through the alley. The square should open up once I reach the end."
+  },
+
+  "33c1af0c-9f8f-4c7a-8d25-da2951f409c9": {
+    "from": "berk_forge",
+    "to": "berk_workshop",
+    "action": "There's a cramped little passage here. I could duck through it and make my way inside the workshop area."
+  },
+  "924fd7a0-d78b-4ddf-b2ea-d71701c3d77f": {
+    "from": "berk_workshop",
+    "to": "berk_forge",
+    "action": "I could slip back through the narrow doorway. The forge sits just past the passage."
+  },
+
+  "d2105cd4-f2f0-4c2d-bdd0-9a5b893cb6d8": {
+    "from": "berk_workshop",
+    "to": "berk_library",
+    "action": "That covered walkway looks quiet enough. I can follow it straight toward the next building."
+  },
+  "f866a0b7-bddc-4b70-979f-0f919fe1eaae": {
+    "from": "berk_library",
+    "to": "berk_workshop",
+    "action": "I can take the back path again. It leads me past the shelters toward the workshop."
+  },
+
+  "ac67a34f-b570-446b-8147-0f7b073d28fc": {
+    "from": "berk_square",
+    "to": "berk_arena",
+    "action": "The broad stone path curves outward from here. I could follow it and see what's ahead."
+  },
+  "8ca4cb55-705a-4ede-b5ee-944a73b8b566": {
+    "from": "berk_arena",
+    "to": "berk_square",
+    "action": "There's a main walkway leading back toward the village. I can follow it without trouble."
+  },
+
+  "bd59510c-600d-4b5e-a4c1-1f9de1343172": {
+    "from": "berk_arena",
+    "to": "berk_cove",
+    "action": "A quiet little trail slips off into the trees. I could take it if I feel like heading that way."
+  },
+  "b0f9d424-cd4b-47dd-9801-3440cc453fc2": {
+    "from": "berk_cove",
+    "to": "berk_arena",
+    "action": "There's a forest path climbing upward. I can follow it through the branches."
+  }
+}

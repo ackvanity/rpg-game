@@ -1,0 +1,24 @@
+GameIntro Middle {
+  align: center middle;
+  width: 100%;
+}
+
+GameIntro #title_banner, #pre_title_banner {
+  width: auto;
+  padding-bottom: 2;
+  color: #EA2C0B;
+}
+
+GameIntro Button {
+  border: none;
+  background: #FFD4A2;
+  opacity: 1;
+  color: auto;
+  margin: 1;
+  padding: 1;
+}
+
+GameIntro Button:hover {
+  background: black;
+  background: #a76a52;
+}

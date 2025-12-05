@@ -1,0 +1,56 @@
+CenterMiddle {
+  height: auto;
+  min-height: 100h;
+  border: #00000000;
+}
+
+Astrid {
+  width: 100%;
+  max-width: 80;
+  text-wrap: wrap;
+  color: black;
+  padding: 3;
+  margin: 2;
+  background: #FFE4B2;
+  color: black;
+}
+
+Astrid Story {
+  margin-bottom: 1;
+}
+
+Astrid Dialogue {
+  margin-bottom: 1;
+  height: auto;
+  layout: grid;
+  grid-size: 2 1;
+  grid-columns: 15 4fr;
+}
+
+Astrid Dialogue * {
+}
+
+Astrid Dialogue Static.speaker {
+  text-style: bold;
+  width: 15;
+}
+
+Astrid Dialogue Static.text {
+  text-style: italic;
+  width: auto;
+  height: auto;
+  text-wrap: wrap;
+}
+
+Astrid Option Button {
+  width: 100%;
+  text-wrap: wrap;
+  background: #8B693D;
+  margin: 1;
+  padding: 1;
+  color: white;
+}
+
+Astrid Option Button:hover {
+  background: #517787;
+}

@@ -1,0 +1,41 @@
+VikingSelect Middle {
+  overflow: auto auto;
+  border: red;
+}
+
+VikingSelect #banner {
+  width: auto;
+  text-style: bold;
+  color: #EA2C0B
+}
+
+VikingSelect VikingSelectCard Horizontal {
+  height: auto;
+  padding: 0;
+  background: #C09A6B;
+  margin: 1;
+}
+
+VikingSelect VikingSelectCard Button {
+  padding: 1;
+  height: 100%;
+}
+
+VikingSelect VikingSelectCard .viking_name {
+  margin-top: 1;
+  margin-left: 1;
+  text-style: bold;
+  color: black;
+}
+VikingSelect VikingSelectCard .viking_fullname {
+  margin-bottom: 1;
+  margin-left: 1;
+  text-style: italic;
+  color: black;
+}
+
+VikingSelect Button#new_viking {
+  width: 100%;
+  padding: 1;
+  margin: 1;
+}
